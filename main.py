@@ -52,3 +52,12 @@ def acessar_dashboard(email: str = Depends(verificar_token)):
 @app.get("/")
 def raiz():
     return {"status": "API rodando com sucesso!"}
+historico_data = [
+    {"data": "2025-07-30", "ppm": 340},
+    {"data": "2025-07-29", "ppm": 280},
+    {"data": "2025-07-28", "ppm": 310},
+]
+
+@app.get("/historico")
+def get_historico(email: str = Depends(verificar_token)):
+    return historico_data
