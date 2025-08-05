@@ -3,20 +3,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-
+import os
 from database import engine, Base, get_db
 import models, schemas, auth
+from sqlalchemy import create_engine
+from database import Base
 
-# Criar tabelas no banco caso não existam
+
 Base.metadata.create_all(bind=engine)
 
-# Inicializa FastAPI
 app = FastAPI()
 
-# Configuração do CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Pode restringir para domínios específicos depois
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -32,12 +32,12 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 print(schemas.UsuarioCreate.model_json_schema())
 @app.post("/usuario", response_model=schemas.UsuarioResponse)
 def criar_usuario(user: schemas.UsuarioCreate, db: Session = Depends(get_db)):
-    # Verifica se já existe email
+    # Verifica se ja existe email
     db_user = auth.get_user_by_email(db, user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email já cadastrado")
 
-    # Cria objeto de usuário
+    # Cria objeto de usuario
     novo_usuario = models.Usuario(
         nome=user.nome,
         cpf=user.cpf,
@@ -46,10 +46,10 @@ def criar_usuario(user: schemas.UsuarioCreate, db: Session = Depends(get_db)):
         senha=auth.get_password_hash(user.senha)  # Criptografa senha
     )
 
-    # Salva no banco
+   
     db.add(novo_usuario)
-    db.commit()       # Salva as alterações
-    db.refresh(novo_usuario)  # Atualiza objeto com ID gerado
+    db.commit()       
+    db.refresh(novo_usuario)  
 
     return novo_usuario
 
