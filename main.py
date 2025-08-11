@@ -8,6 +8,7 @@ from database import engine, Base, get_db
 import models, schemas, auth
 from sqlalchemy import create_engine
 from database import Base
+from typing import List
 
 
 Base.metadata.create_all(bind=engine)
@@ -77,6 +78,26 @@ def verificar_token(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise HTTPException(status_code=401, detail="Token inválido")
 
+# ========= NOVO: criar leitura =========
+@app.post("/leituras", response_model=schemas.LeituraResponse)
+def criar_leitura(payload: schemas.LeituraCreate, db: Session = Depends(get_db)):
+    status = payload.status or ("PERIGO" if payload.ppm >= 400 else "SEGURO")
+    leitura = models.Leitura(ppm=payload.ppm, status=status, origem=payload.origem)
+    db.add(leitura)
+    db.commit()
+    db.refresh(leitura)
+    return leitura
+
+# ========= NOVO: listar histórico do banco =========
+@app.get("/historico", response_model=List[schemas.LeituraResponse])
+def listar_historico(
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    email: str = Depends(verificar_token)  # protege com JWT (igual /dashboard)
+):
+    return db.query(models.Leitura)\
+             .order_by(models.Leitura.created_at.desc())\
+             .limit(limit).all()
 
 @app.get("/dashboard")
 def acessar_dashboard(email: str = Depends(verificar_token)):
