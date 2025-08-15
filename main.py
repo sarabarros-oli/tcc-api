@@ -101,7 +101,7 @@ def listar_leituras(
     # Atenção: o campo no modelo é 'criado_em'
     return (
         db.query(models.Leitura)
-        .order_by(models.Leitura.criado_em.desc())
+        .order_by(models.Leitura.created_at.desc())
         .limit(limit)
         .all()
     )
