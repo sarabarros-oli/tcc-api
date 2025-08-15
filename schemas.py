@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
+from pydantic import BaseModel, Field
+
 
 class UsuarioCreate(BaseModel):
     nome: str
