@@ -26,14 +26,16 @@ class UsuarioResponse(BaseModel):
 # NOVOS:
 class LeituraCreate(BaseModel):
     ppm: int
-    status: Optional[str] = None    
-    origem: Optional[str] = "pico"  
+    status: Optional[str] = None
+    origem: Optional[str] = "android"
 
 class LeituraResponse(BaseModel):
     id: int
     ppm: int
     status: str
-    origem: Optional[str]
-    created_at: datetime
+    origem: Optional[str] = None
+    created_at: datetime = Field(alias="criado_em")  
+
     class Config:
-        from_attributes = True
+        from_attributes = True    
+        populate_by_name = True   

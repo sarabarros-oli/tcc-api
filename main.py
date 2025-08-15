@@ -79,6 +79,8 @@ def verificar_token(token: str = Depends(oauth2_scheme)):
         raise HTTPException(status_code=401, detail="Token inválido")
 
 # ========= NOVO: criar leitura =========
+
+# ========== CRIA LEITURA ==========
 @app.post("/leituras", response_model=schemas.LeituraResponse)
 def criar_leitura(payload: schemas.LeituraCreate, db: Session = Depends(get_db)):
     status = payload.status or ("PERIGO" if payload.ppm >= 400 else "SEGURO")
@@ -87,6 +89,20 @@ def criar_leitura(payload: schemas.LeituraCreate, db: Session = Depends(get_db))
     db.commit()
     db.refresh(leitura)
     return leitura
+
+# ========== LISTA LEITURAS ==========
+@app.get("/leituras", response_model=List[schemas.LeituraResponse])
+def listar_leituras(
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    email: str = Depends(verificar_token),   # protegido por JWT
+):
+    return (
+        db.query(models.Leitura)
+        .order_by(models.Leitura.criado_em.desc())
+        .limit(limit)
+        .all()
+    )
 
 # ========= NOVO: listar histórico do banco =========
 @app.get("/historico", response_model=List[schemas.LeituraResponse])

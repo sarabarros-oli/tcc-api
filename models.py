@@ -20,4 +20,4 @@ class Leitura(Base):
     ppm = Column(Integer, nullable=False)
     status = Column(String, nullable=False)      # "SEGURO" | "PERIGO"
     origem = Column(String, nullable=True)       # ex: "pico2w" / "sala1"
-    criado_em = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
