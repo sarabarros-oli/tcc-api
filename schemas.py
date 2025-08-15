@@ -35,9 +35,8 @@ class LeituraResponse(BaseModel):
     id: int
     ppm: int
     status: str
-    origem: Optional[str] = None
-    created_at: datetime = Field(alias="criado_em")  
+    origem: str | None
+    created_at: datetime = Field(alias="criado_em")
 
     class Config:
-        from_attributes = True    
-        populate_by_name = True   
+        populate_by_name = True
