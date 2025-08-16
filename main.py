@@ -120,7 +120,7 @@ def listar_leituras(limit: int = 100,
     return (
         db.query(models.Leitura)
           .filter(models.Leitura.user_id == user.id)
-          .order_by(models.Leitura.created_at.desc())
+          .order_by(models.Leitura.created_at.desc())   # <- created_at
           .limit(limit)
           .all()
     )

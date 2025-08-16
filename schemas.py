@@ -26,9 +26,6 @@ class UsuarioResponse(BaseModel):
     class Config:
         from_attributes = True
 # NOVOS:
-# schemas.py
-
-
 class LeituraCreate(BaseModel):
     ppm: int
     status: str | None = None
@@ -39,9 +36,8 @@ class LeituraResponse(BaseModel):
     ppm: int
     status: str
     origem: str | None = None
-    created_at: datetime
-    user_id: int
+    created_at: datetime = Field(alias="created_at")  # <- usa created_at MESMO
 
     class Config:
-        from_attributes = True
-
+        populate_by_name = True
+        from_attributes = True  # Pydantic v2
