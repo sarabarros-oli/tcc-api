@@ -84,27 +84,48 @@ def login(login_data: schemas.Login, db: Session = Depends(get_db)):
 # ---- Leituras (CRUD simples) ----
 
 @app.post("/leituras", response_model=schemas.LeituraResponse)
-def criar_leitura(payload: schemas.LeituraCreate, db: Session = Depends(get_db)):
+def criar_leitura(payload: schemas.LeituraCreate,
+                  db: Session = Depends(get_db),
+                  user: models.Usuario = Depends(get_current_user)):
     status = payload.status or ("PERIGO" if payload.ppm >= 400 else "SEGURO")
-    leitura = models.Leitura(ppm=payload.ppm, status=status, origem=payload.origem)
+    leitura = models.Leitura(
+        ppm=payload.ppm,
+        status=status,
+        origem=payload.origem,
+        user_id=user.id
+    )
     db.add(leitura)
     db.commit()
     db.refresh(leitura)
     return leitura
 
-@app.get("/leituras", response_model=List[schemas.LeituraResponse])
-def listar_leituras(
-    limit: int = 100,
-    db: Session = Depends(get_db),
-    email: str = Depends(verificar_token)  # protegido
-):
-    # Atenção: o campo no modelo é 'criado_em'
+@app.get("/leituras", response_model=list[schemas.LeituraResponse])
+def listar_leituras(limit: int = 100,
+                    db: Session = Depends(get_db),
+                    user: models.Usuario = Depends(get_current_user)):
     return (
         db.query(models.Leitura)
-        .order_by(models.Leitura.created_at.desc())
-        .limit(limit)
-        .all()
+          .filter(models.Leitura.user_id == user.id)
+          .order_by(models.Leitura.created_at.desc())
+          .limit(limit)
+          .all()
     )
+
+
+def get_current_user(db: Session = Depends(get_db),
+                     token: str = Depends(oauth2_scheme)) -> models.Usuario:
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALG])
+        email = payload.get("sub")
+        if not email:
+            raise HTTPException(status_code=401, detail="Token inválido")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Token inválido")
+
+    user = db.query(models.Usuario).filter(models.Usuario.email == email).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="Usuário não encontrado")
+    return user
 
 @app.get("/dashboard")
 def acessar_dashboard(email: str = Depends(verificar_token)):

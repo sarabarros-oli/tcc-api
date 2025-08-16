@@ -26,17 +26,22 @@ class UsuarioResponse(BaseModel):
     class Config:
         from_attributes = True
 # NOVOS:
+# schemas.py
+
+
 class LeituraCreate(BaseModel):
     ppm: int
-    status: Optional[str] = None
-    origem: Optional[str] = "android"
+    status: str | None = None
+    origem: str | None = "android"
 
 class LeituraResponse(BaseModel):
     id: int
     ppm: int
     status: str
-    origem: str | None
-    created_at: datetime = Field(alias="criado_em")
+    origem: str | None = None
+    created_at: datetime
+    user_id: int
 
     class Config:
-        populate_by_name = True
+        from_attributes = True
+
