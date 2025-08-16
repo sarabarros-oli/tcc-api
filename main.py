@@ -53,6 +53,20 @@ def verificar_token(token: str = Depends(oauth2_scheme)) -> str:
         return email
     except JWTError:
         raise HTTPException(status_code=401, detail="Token inválido")
+def get_current_user(db: Session = Depends(get_db),
+                     token: str = Depends(oauth2_scheme)) -> models.Usuario:
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALG])
+        email = payload.get("sub")
+        if not email:
+            raise HTTPException(status_code=401, detail="Token inválido")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Token inválido")
+
+    user = db.query(models.Usuario).filter(models.Usuario.email == email).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="Usuário não encontrado")
+    return user
 
 # ================= ROTAS =================
 
@@ -112,20 +126,6 @@ def listar_leituras(limit: int = 100,
     )
 
 
-def get_current_user(db: Session = Depends(get_db),
-                     token: str = Depends(oauth2_scheme)) -> models.Usuario:
-    try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALG])
-        email = payload.get("sub")
-        if not email:
-            raise HTTPException(status_code=401, detail="Token inválido")
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Token inválido")
-
-    user = db.query(models.Usuario).filter(models.Usuario.email == email).first()
-    if not user:
-        raise HTTPException(status_code=401, detail="Usuário não encontrado")
-    return user
 
 @app.get("/dashboard")
 def acessar_dashboard(email: str = Depends(verificar_token)):
