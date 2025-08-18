@@ -134,3 +134,7 @@ def acessar_dashboard(email: str = Depends(verificar_token)):
 @app.get("/")
 def raiz():
     return {"status": "API rodando com sucesso!"}
+# main.py
+@app.get("/health")
+def health():
+    return {"ok": True}
