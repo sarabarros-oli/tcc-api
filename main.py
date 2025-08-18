@@ -114,7 +114,7 @@ def criar_leitura(payload: schemas.LeituraCreate,
     return leitura
 
 @app.get("/leituras", response_model=list[schemas.LeituraResponse])
-def listar_leituras(limit: int = 100,
+def listar_leituras(limit: int = 1000,
                     db: Session = Depends(get_db),
                     user: models.Usuario = Depends(get_current_user)):
     return (
