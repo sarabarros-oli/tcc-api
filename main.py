@@ -10,7 +10,7 @@ import os
 
 from database import engine, Base, get_db
 import models, schemas, auth
-from auth_jwt import create_jwt, decode_jwt, JWT_SECRET, JWT_ALG
+from auth import create_jwt, decode_jwt, JWT_SECRET, JWT_ALG
 
 # Cria tabelas
 Base.metadata.create_all(bind=engine)
