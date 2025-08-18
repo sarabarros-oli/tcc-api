@@ -4,6 +4,6 @@ sqlalchemy
 psycopg2-binary
 python-dotenv
 pydantic
-passlib[bcrypt]
+passlib[bcrypt]==1.7.4
 python-jose
-
+bcrypt==4.0.1
