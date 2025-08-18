@@ -27,17 +27,16 @@ class UsuarioResponse(BaseModel):
         from_attributes = True
 # NOVOS:
 class LeituraCreate(BaseModel):
-    ppm: int
-    status: str | None = None
-    origem: str | None = "android"
+    ppm: float                      # <- float aqui
+    status: Optional[str] = None
+    origem: Optional[str] = "android"
 
 class LeituraResponse(BaseModel):
     id: int
     ppm: int
     status: str
-    origem: str | None = None
-    created_at: datetime = Field(alias="created_at")  # <- usa created_at MESMO
+    origem: Optional[str] = None
+    created_at: datetime           # nome já bate com o modelo
 
     class Config:
-        populate_by_name = True
-        from_attributes = True  # Pydantic v2
+        from_attributes = True     # Pydantic v2

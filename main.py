@@ -10,6 +10,7 @@ import os
 
 from database import engine, Base, get_db
 import models, schemas, auth
+from auth_jwt import create_jwt, decode_jwt, JWT_SECRET, JWT_ALG
 
 # Cria tabelas
 Base.metadata.create_all(bind=engine)
@@ -101,9 +102,12 @@ def login(login_data: schemas.Login, db: Session = Depends(get_db)):
 def criar_leitura(payload: schemas.LeituraCreate,
                   db: Session = Depends(get_db),
                   user: models.Usuario = Depends(get_current_user)):
-    status = payload.status or ("PERIGO" if payload.ppm >= 400 else "SEGURO")
+
+    ppm_int = int(round(payload.ppm))  # <- resolve o float do app
+    status = payload.status or ("PERIGO" if ppm_int >= 400 else "SEGURO")
+
     leitura = models.Leitura(
-        ppm=payload.ppm,
+        ppm=ppm_int,
         status=status,
         origem=payload.origem,
         user_id=user.id
@@ -112,6 +116,7 @@ def criar_leitura(payload: schemas.LeituraCreate,
     db.commit()
     db.refresh(leitura)
     return leitura
+
 
 @app.get("/leituras", response_model=list[schemas.LeituraResponse])
 def listar_leituras(limit: int = 1000,

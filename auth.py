@@ -65,3 +65,25 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
+
+
+# auth_jwt.py (sugestão)
+import os
+from datetime import datetime, timedelta, timezone
+from jose import jwt
+
+JWT_SECRET = os.getenv("JWT_SECRET", "dev-secret")
+JWT_ALG = os.getenv("JWT_ALG", "HS256")
+JWT_EXP_MIN = int(os.getenv("JWT_EXP_MIN", "4320"))  # 3 dias
+
+def create_jwt(sub: str) -> str:
+    now = datetime.now(timezone.utc)
+    payload = {
+        "sub": sub,
+        "iat": int(now.timestamp()),
+        "exp": int((now + timedelta(minutes=JWT_EXP_MIN)).timestamp()),
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALG)
+
+def decode_jwt(token: str) -> dict:
+    return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALG])
