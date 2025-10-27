@@ -18,20 +18,17 @@ class Usuario(Base):
     senha = Column(String, nullable=False)
 
 
+from datetime import datetime, timezone
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+
 class Leitura(Base):
     __tablename__ = "leituras"
-
     id = Column(Integer, primary_key=True, index=True)
     ppm = Column(Integer, nullable=False)
     status = Column(String, nullable=False)
     origem = Column(String, nullable=True)
 
-    # salva no horário de Brasília (GMT-3)
-    created_at = Column(
-        DateTime,
-        default=lambda: datetime.now(timezone(timedelta(hours=-3))),
-        nullable=False
-    )
+    # use DateTime timezone-aware (recomendo)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
 
-    # vincula ao usuário
     user_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
