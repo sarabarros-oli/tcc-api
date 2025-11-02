@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from urllib.parse import quote_plus
 
-DATABASE_URL ="postgresql://postgres:pkFRVPLzHLrvbkTICjbOqVwJJuBjJBUv@postgres.railway.internal:5432/railway"
+DATABASE_URL ="postgresql://postgres:teDzZWkVFmoqSeIiDHtoiOnCeXmTmaDW@interchange.proxy.rlwy.net:23383/railway"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
