@@ -2,6 +2,13 @@ from passlib.context import CryptContext
 from models import Usuario
 from sqlalchemy.orm import Session
 
+from database import Base, engine  # seu arquivo que tem engine e Base
+import models  # todos os modelos que você criou
+
+# Cria as tabelas no banco, caso não existam
+Base.metadata.create_all(bind=engine)
+
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_user_by_email(db: Session, email: str):

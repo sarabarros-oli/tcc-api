@@ -7,6 +7,12 @@ from typing import List
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 import os
+from database import Base, engine  # seu arquivo que tem engine e Base
+import models  # todos os modelos que você criou
+
+# Cria as tabelas no banco, caso não existam
+Base.metadata.create_all(bind=engine)
+
 
 from database import engine, Base, get_db
 import models, schemas, auth
