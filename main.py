@@ -138,9 +138,38 @@ def listar_leituras(limit: int = 1000,
 
 
 
+from sqlalchemy import func
+from fastapi import Depends
+from sqlalchemy.orm import Session
+
 @app.get("/dashboard")
-def acessar_dashboard(email: str = Depends(verificar_token)):
-    return {"mensagem": f"Bem-vindo, {email}. Dados protegidos acessados com sucesso."}
+def acessar_dashboard(
+    db: Session = Depends(get_db),
+    user: models.Usuario = Depends(get_current_user)
+):
+    # Agrupa leituras por dia e calcula média de ppm
+    dados = (
+        db.query(
+            func.date(models.Leitura.created_at).label("data"),
+            func.avg(models.Leitura.ppm).label("media_ppm")
+        )
+        .filter(models.Leitura.user_id == user.id)
+        .group_by(func.date(models.Leitura.created_at))
+        .order_by(func.date(models.Leitura.created_at))
+        .all()
+    )
+
+    # Converte para formato JSON amigável
+    resultado = [
+        {"data": str(row.data), "media_ppm": round(row.media_ppm, 2)}
+        for row in dados
+    ]
+
+    return {
+        "usuario": user.email,
+        "grafico": resultado
+    }
+
 
 @app.get("/")
 def raiz():
