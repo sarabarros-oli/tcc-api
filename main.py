@@ -94,13 +94,17 @@ def criar_usuario(user: schemas.UsuarioCreate, db: Session = Depends(get_db)):
     db.refresh(novo)
     return novo
 
+from fastapi.security import OAuth2PasswordRequestForm
+
 @app.post("/login")
-def login(login_data: schemas.Login, db: Session = Depends(get_db)):
-    user = auth.authenticate_user(db, login_data.email, login_data.senha)
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    # note que aqui form_data.username é o email
+    user = auth.authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=401, detail="Credenciais inválidas")
     token = create_jwt(user.email)
     return {"access_token": token, "token_type": "bearer"}
+
 
 # ---- Leituras (CRUD simples) ----
 
